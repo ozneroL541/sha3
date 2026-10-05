@@ -434,7 +434,7 @@ func (k *KekkaP) algorithm7(S string) string {
  * with a specified capacity.
  */
 type Keccak struct {
-	c int
+	c int /** Capacity in bits */
 }
 
 /**

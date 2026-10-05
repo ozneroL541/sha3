@@ -5,6 +5,9 @@
 
 Personal implementation of SHA3 algorithm.
 
+## Requirements
+In download the tests `curl` and `unzip` commands are required. 
+
 
 ## Authors
  - Lorenzo Radice @ozneroL541
