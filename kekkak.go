@@ -101,6 +101,14 @@ type Sponge struct {
 	domainSuffix string // Domain separation bits (e.g., "01" for SHA-3)
 }
 
+/**
+ * Sponge constructor initializes a new Sponge instance with the specified parameters.
+ * @param f: the permutation function to use
+ * @param pad: the padding function to use
+ * @param r: the rate in bits
+ * @param domainSuffix: the domain separation bits
+ * @return: a new Sponge instance
+ */
 func NewSponge(f PermutationFunc, pad PaddingFunc, r uint, domainSuffix string) *Sponge {
 	return &Sponge{
 		f:            f,
@@ -110,6 +118,12 @@ func NewSponge(f PermutationFunc, pad PaddingFunc, r uint, domainSuffix string) 
 	}
 }
 
+/**
+ * Implements the SPONGE[f, pad, r] construction with domain separation.
+ * @param N: input pre-padded byte slice
+ * @param d: desired output length in bits
+ * @return: output byte slice of length d bits
+ */
 func (sp *Sponge) sponge(N []byte, d uint) []byte {
 	// Step 1: Convert input bytes to bit string and append domain separation bits
 	Nbit := bytesToBitString(N) + sp.domainSuffix
