@@ -448,20 +448,20 @@ func (k *KekkaP) algorithm7(S string) string {
 }
 
 /**
- * Kekkak represents the KECCAK hash function
+ * Keccak represents the KECCAK hash function
  * with a specified capacity.
  */
-type Kekkak struct {
+type Keccak struct {
 	c int
 }
 
 /**
- * Creates a new Kekkak instance with the specified capacity.
+ * Creates a new Keccak instance with the specified capacity.
  * @param c: capacity in bits
- * @return: a new Kekkak instance
+ * @return: a new Keccak instance
  */
-func NewKekkak(c int) *Kekkak {
-	return &Kekkak{
+func NewKeccak(c int) *Keccak {
+	return &Keccak{
 		c: c,
 	}
 }
@@ -472,7 +472,7 @@ func NewKekkak(c int) *Kekkak {
  * @param d: desired output length in bits
  * @return: output byte slice of length d bits
  */
-func (k *Kekkak) kekkak(N []byte, d uint) []byte {
+func (k *Keccak) keccak(N []byte, d uint) []byte {
 	kekkap := NewKekkaP(1600, 24)
 	sponge := NewSponge(kekkap.algorithm7, pad101, uint(1600-k.c), "01")
 	return sponge.sponge(N, d)
