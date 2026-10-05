@@ -64,24 +64,6 @@ func xorBitStrings(s1, s2 string) string {
 }
 
 /**
- * Creates a new Keccak instance.
- * @param c: capacity in bits
- * @return: a new Keccak instance
- */
-func NewKeccak(c uint) *Keccak {
-	return &Keccak{
-		c: c,
-	}
-}
-
-/**
- * Keccak represents the Keccak hash function with a specified capacity.
- */
-type Keccak struct {
-	c uint // Capacity in bits
-}
-
-/**
  * PermutationFunc defines a generic state transformation function on bit strings.
  */
 type PermutationFunc func(string) string
