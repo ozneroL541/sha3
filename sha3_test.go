@@ -16,7 +16,7 @@ const FILENAME_SUFFIX = ".rsp"
 var byteTestVectors []string = []string{
 	"ShortMsg",
 	"LongMsg",
-	//"Monte",
+	"Monte",
 }
 
 /**
@@ -34,11 +34,11 @@ func runKAT(t *testing.T, filepath string, hashFunc func([]byte) []byte) {
 		t.Fatalf("Failed to open KAT file %s: %v", filepath, err)
 	}
 	defer file.Close()
+
 	// Create a scanner to read the file line by line
 	scanner := bufio.NewScanner(file)
 	if err := scanner.Err(); err != nil {
 		t.Fatalf("Failed to read KAT file %s: %v", filepath, err)
-		defer file.Close()
 		return
 	}
 	var msg []byte        /** Message to be hashed */
@@ -87,6 +87,61 @@ func runKAT(t *testing.T, filepath string, hashFunc func([]byte) []byte) {
 }
 
 /**
+ * runMonteKAT parses a NIST SHA-3 Monte Carlo test file (.rsp) and executes 1,000 inner
+ * hash loop iterations for each outer count iteration, matching results against the expected MD.
+ * @param t *testing.T - The testing object used for reporting errors and skipping tests.
+ * @param filepath string - The path to the Monte Carlo KAT file.
+ * @param hashFunc func([]byte) []byte - The hash function to be tested.
+ */
+func runMonteKAT(t *testing.T, filepath string, hashFunc func([]byte) []byte) {
+	file, err := os.Open(filepath)
+	if err != nil {
+		t.Fatalf("Failed to open KAT file %s: %v", filepath, err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	if err := scanner.Err(); err != nil {
+		t.Fatalf("Failed to read KAT file %s: %v", filepath, err)
+		return
+	}
+
+	var seed []byte
+	var expectedMD []byte
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+
+		if strings.HasPrefix(line, "Seed = ") {
+			seedHex := strings.TrimPrefix(line, "Seed = ")
+			seed, _ = hex.DecodeString(seedHex)
+		} else if strings.HasPrefix(line, "MD = ") {
+			mdHex := strings.TrimPrefix(line, "MD = ")
+			expectedMD, _ = hex.DecodeString(mdHex)
+
+			// Per NIST CAVP SHA-3 Monte Carlo specification:
+			// Execute 1,000 hash iterations per outer count loop
+			for i := 0; i < 1000; i++ {
+				seed = hashFunc(seed)
+				if seed == nil {
+					t.Skip("Implementation missing, skipping verification")
+					return
+				}
+			}
+
+			// Verify the 1,000th iteration digest against the test vector expected MD
+			if !bytes.Equal(seed, expectedMD) {
+				t.Errorf(
+					"Monte Carlo Hash mismatch!\n"+
+						"File: %s\n"+
+						"Expected: %x\nGot:      %x", filepath, expectedMD, seed,
+				)
+			}
+		}
+	}
+}
+
+/**
  * testSHA3Parametrical runs the KAT tests for a given hash function.
  * It reads the corresponding KAT file and executes the test for each message and expected hash.
  * @param t *testing.T - The testing object used for reporting errors and skipping tests.
@@ -95,7 +150,11 @@ func runKAT(t *testing.T, filepath string, hashFunc func([]byte) []byte) {
  */
 func testSHA3Parametrical(t *testing.T, filename string, hashFunc func([]byte) []byte) {
 	filepath := KAT_DIR + filename
-	runKAT(t, filepath, hashFunc)
+	if strings.Contains(filename, "Monte") {
+		runMonteKAT(t, filepath, hashFunc)
+	} else {
+		runKAT(t, filepath, hashFunc)
+	}
 }
 
 /**
