@@ -133,6 +133,15 @@ func (k *Keccak) keccak(N []byte, d uint) []byte {
 }
 
 /**
+ * Returns the lane size in bits for the Keccak instance.
+ * @return: lane size in bits
+ */
+func getLaneSize() int {
+	keccakp := NewKeccakP(1600, 24)
+	return keccakp.b / 25 /** Lane size in bits = 64 */
+}
+
+/**
  * 5.2 Keccak[c]
  * @param N: input pre-padded byte slice
  * @param d: desired output length in bits
@@ -140,7 +149,7 @@ func (k *Keccak) keccak(N []byte, d uint) []byte {
  */
 func (k *Keccak) keccakWithState(N []byte, d uint) ([]byte, *StateArray) {
 	keccakp := NewKeccakP(1600, 24)
-	laneSize := keccakp.b / 25 /** Lane size in bits = 64 */
+	laneSize := getLaneSize() /** Lane size in bits = 64 */
 	padding := func(x uint, m uint) string {
 		return k.domain + pad101(x, m+uint(len(k.domain)))
 	}
