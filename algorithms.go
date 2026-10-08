@@ -127,42 +127,43 @@ func chi(A *StateArray) *StateArray {
  * @return: bit rc(t)
  */
 func rc(t int) byte {
-	// 1. If t mod 255 = 0, return 1.
-	if t%255 == 0 {
-		return 1
-	}
-	// 2. Let R = 10000000.
-	R := []byte{1, 0, 0, 0, 0, 0, 0, 0, 0}
-	// 3. For i from 1 to t mod 255, let:
-	for i := 1; i <= t%255; i++ {
-		// a. R = 0 || R;
-		for k := 8; k > 0; k-- {
-			R[k] = R[k-1]
-		}
-		R[0] = 0
-		// b. R[0] = R[0] ⊕ R[8];
-		R[0] ^= R[8]
-		// c. R[4] = R[4] ⊕ R[8];
-		R[4] ^= R[8]
-		// d. R[5] = R[5] ⊕ R[8];
-		R[5] ^= R[8]
-		// e. R[6] = R[6] ⊕ R[8];
-		R[6] ^= R[8]
-		// f. R =Trunc8[R].
-	}
-	// Equivalent
-	//R := byte(1)
-	//for i := 0; i < t%255; i++ {
-	//	if R&0x80 != 0 {
-	//		R = (R << 1) ^ 0x71
-	//	} else {
-	//		R <<= 1
-	//	}
+	//// 1. If t mod 255 = 0, return 1.
+	//if t%255 == 0 {
+	//	return 1
 	//}
-	//R &= 1
+	//// 2. Let R = 10000000.
+	//R := []byte{1, 0, 0, 0, 0, 0, 0, 0, 0}
+	//// 3. For i from 1 to t mod 255, let:
+	//for i := 1; i <= t%255; i++ {
+	//	// a. R = 0 || R;
+	//	for k := 8; k > 0; k-- {
+	//		R[k] = R[k-1]
+	//	}
+	//	R[0] = 0
+	//	// b. R[0] = R[0] ⊕ R[8];
+	//	R[0] ^= R[8]
+	//	// c. R[4] = R[4] ⊕ R[8];
+	//	R[4] ^= R[8]
+	//	// d. R[5] = R[5] ⊕ R[8];
+	//	R[5] ^= R[8]
+	//	// e. R[6] = R[6] ⊕ R[8];
+	//	R[6] ^= R[8]
+	//	// f. R =Trunc8[R].
+	//}
+	//// 4. Return R[0].
+	//return R[0]
 
-	// 4. Return R[0].
-	return R[0]
+	// Equivalent
+	R := byte(1)
+	for i := 0; i < t%255; i++ {
+		if R&0x80 != 0 {
+			R = (R << 1) ^ 0x71
+		} else {
+			R <<= 1
+		}
+	}
+	R &= 1
+	return R
 }
 
 /**
