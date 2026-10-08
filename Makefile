@@ -4,7 +4,7 @@ all: build
 
 KAT_DIR = KAT
 KAT_BASE_URL = https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Algorithm-Validation-Program/documents/sha3/
-TESTS = sha-3bytetestvectors #sha-3bittestvectors
+TESTS = sha-3bytetestvectors shakebytetestvectors
 
 test:
 	@if [ ! -d "$(KAT_DIR)" ]; then \

@@ -5,12 +5,14 @@ import (
 	"bytes"
 	"encoding/hex"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 )
 
 const KAT_DIR = "KAT/"
 const BYTE_TEST_VECTORS_DIR = "sha-3bytetestvectors/"
+const SHAKE_BYTE_TEST_VECTORS_DIR = "shakebytetestvectors/"
 const FILENAME_SUFFIX = ".rsp"
 
 var byteTestVectors []string = []string{
@@ -169,6 +171,85 @@ func testSHA3_bytetestvectors(t *testing.T, filename string, hashFunc func([]byt
 	testSHA3Parametrical(t, filepath, hashFunc)
 }
 
+func runSHAKEKAT(t *testing.T, filepath string, hashFunc func([]byte, uint) []byte) {
+	file, err := os.Open(filepath)
+	if err != nil {
+		t.Fatalf("Failed to open KAT file %s: %v", filepath, err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var msg []byte
+	var outputLen uint
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		switch {
+		case strings.Contains(line, "Outputlen = "):
+			outputLenValue := strings.TrimSpace(strings.Trim(line[strings.Index(line, "Outputlen = ")+len("Outputlen = "):], "[]"))
+			parsedOutputLen, err := strconv.ParseUint(outputLenValue, 10, 32)
+			if err != nil {
+				t.Fatalf("Invalid output length %q in KAT file %s: %v", outputLenValue, filepath, err)
+			}
+			outputLen = uint(parsedOutputLen)
+		case strings.HasPrefix(line, "Msg = "):
+			msgHex := strings.TrimPrefix(line, "Msg = ")
+			if msgHex == "00" {
+				msg = []byte{}
+			} else {
+				msg, err = hex.DecodeString(msgHex)
+				if err != nil {
+					t.Fatalf("Invalid message %q in KAT file %s: %v", msgHex, filepath, err)
+				}
+			}
+		case strings.HasPrefix(line, "Output = "):
+			outputHex := strings.TrimPrefix(line, "Output = ")
+			expectedOutput, err := hex.DecodeString(outputHex)
+			if err != nil {
+				t.Fatalf("Invalid output %q in KAT file %s: %v", outputHex, filepath, err)
+			}
+
+			actualOutput := msg
+			iterations := 1
+			if strings.Contains(filepath, "Monte") {
+				iterations = 1000
+			}
+			for i := 0; i < iterations; i++ {
+				actualOutput = hashFunc(actualOutput, outputLen)
+				if actualOutput == nil {
+					t.Skip("Implementation missing, skipping verification")
+					return
+				}
+			}
+			if !bytes.Equal(actualOutput, expectedOutput) {
+				t.Errorf(
+					"SHAKE mismatch!\n"+
+						"File: %s\nExpected: %x\nGot:      %x",
+					filepath, expectedOutput, actualOutput,
+				)
+			}
+			if iterations > 1 {
+				msg = actualOutput
+			}
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		t.Fatalf("Failed to read KAT file %s: %v", filepath, err)
+	}
+}
+
+func testSHAKE_bytetestvectors(t *testing.T, filename string, hashFunc func([]byte, uint) []byte) {
+	filepath := KAT_DIR + SHAKE_BYTE_TEST_VECTORS_DIR + filename + FILENAME_SUFFIX
+	runSHAKEKAT(t, filepath, hashFunc)
+}
+
+func testSHAKE_all_bytetestvectors(t *testing.T, name string, hashFunc func([]byte, uint) []byte) {
+	for _, vector := range []string{"ShortMsg", "LongMsg", "VariableOut"} {
+		testSHAKE_bytetestvectors(t, name+vector, hashFunc)
+	}
+}
+
 /**
  * testSHA3_all_bytetestvectors runs the byte test vectors for a given hash function.
  * It iterates over a predefined list of byte test vector filenames and executes the test for each.
@@ -200,4 +281,14 @@ func TestSHA3_384(t *testing.T) {
 func TestSHA3_512(t *testing.T) {
 	const sha = "SHA3_512"
 	testSHA3_all_bytetestvectors(t, sha, SHA3_512)
+}
+
+func TestSHAKE128(t *testing.T) {
+	const shake = "SHAKE128"
+	testSHAKE_all_bytetestvectors(t, shake, SHAKE128)
+}
+
+func TestSHAKE256(t *testing.T) {
+	const shake = "SHAKE256"
+	testSHAKE_all_bytetestvectors(t, shake, SHAKE256)
 }

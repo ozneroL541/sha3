@@ -116,7 +116,11 @@ func NewKeccak(c int) *Keccak {
  * @return: output byte slice of length d bits
  */
 func (k *Keccak) keccak(N []byte, d uint) []byte {
+	return k.keccakWithDomain(N, d, "01")
+}
+
+func (k *Keccak) keccakWithDomain(N []byte, d uint, domainSuffix string) []byte {
 	keccakp := NewKeccakP(1600, 24)
-	sponge := NewSponge(keccakp.algorithm7, pad101, uint(1600-k.c), "01")
+	sponge := NewSponge(keccakp.algorithm7, pad101, uint(1600-k.c), domainSuffix)
 	return sponge.sponge(N, d)
 }
