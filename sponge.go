@@ -3,13 +3,12 @@ package sha3
 import "strings"
 
 /**
- * Sponge represents SPONGE[f, pad, r] with domain separation support.
+ * Sponge represents SPONGE[f, pad, r]
  */
 type Sponge struct {
-	f            PermutationFunc
-	pad          PaddingFunc
-	r            uint   // Rate in bits
-	domainSuffix string // Domain separation bits (e.g., "01" for SHA-3)
+	f   PermutationFunc
+	pad PaddingFunc
+	r   uint // Rate in bits
 }
 
 /**
@@ -18,15 +17,13 @@ type Sponge struct {
  * @param f: the permutation function to use
  * @param pad: the padding function to use
  * @param r: the rate in bits
- * @param domainSuffix: the domain separation bits
  * @return: a new Sponge instance
  */
-func NewSponge(f PermutationFunc, pad PaddingFunc, r uint, domainSuffix string) *Sponge {
+func NewSponge(f PermutationFunc, pad PaddingFunc, r uint) *Sponge {
 	return &Sponge{
-		f:            f,
-		pad:          pad,
-		r:            r,
-		domainSuffix: domainSuffix,
+		f:   f,
+		pad: pad,
+		r:   r,
 	}
 }
 
@@ -42,7 +39,7 @@ func (sp *Sponge) sponge(N []byte, d uint) []byte {
 		panic("d must be a nonnegative integer")
 	}
 	// 1. Let P=N || pad(r, len(N)).
-	P := bytesToBitString(N) + sp.domainSuffix
+	P := bytesToBitString(N)
 	if sp.pad != nil {
 		P += sp.pad(sp.r, uint(len(P)))
 	}

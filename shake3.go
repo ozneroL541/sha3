@@ -8,7 +8,8 @@ package sha3
  */
 func RawSHAKE128(J []byte, d uint) []byte {
 	h_fun := NewKeccak(256)
-	return h_fun.keccakWithDomain(J, d, "1111")
+	M11 := concat(J, "1111")
+	return h_fun.keccak(M11, d)
 }
 
 /**
@@ -19,7 +20,8 @@ func RawSHAKE128(J []byte, d uint) []byte {
  */
 func RawSHAKE256(J []byte, d uint) []byte {
 	h_fun := NewKeccak(512)
-	return h_fun.keccakWithDomain(J, d, "1111")
+	M11 := concat(J, "1111")
+	return h_fun.keccak(M11, d)
 }
 
 /**
@@ -30,7 +32,8 @@ func RawSHAKE256(J []byte, d uint) []byte {
  */
 func SHAKE128(J []byte, d uint) []byte {
 	h_fun := NewKeccak(256)
-	return h_fun.keccakWithDomain(J, d, "1111")
+	M11 := concat(J, "1111")
+	return h_fun.keccak(M11, d)
 }
 
 /**
@@ -41,5 +44,6 @@ func SHAKE128(J []byte, d uint) []byte {
  */
 func SHAKE256(J []byte, d uint) []byte {
 	h_fun := NewKeccak(512)
-	return h_fun.keccakWithDomain(J, d, "1111")
+	M11 := concat(J, "1111")
+	return h_fun.keccak(M11, d)
 }

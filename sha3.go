@@ -7,7 +7,8 @@ package sha3
  */
 func SHA3_224(message []byte) []byte {
 	h_fun := NewKeccak(448)
-	return h_fun.keccak(message, 224)
+	M01 := concat(message, "01")
+	return h_fun.keccak(M01, 224)
 }
 
 /**
@@ -17,7 +18,8 @@ func SHA3_224(message []byte) []byte {
  */
 func SHA3_256(message []byte) []byte {
 	h_fun := NewKeccak(512)
-	return h_fun.keccak(message, 256)
+	M01 := concat(message, "01")
+	return h_fun.keccak(M01, 256)
 }
 
 /**
@@ -27,7 +29,8 @@ func SHA3_256(message []byte) []byte {
  */
 func SHA3_384(message []byte) []byte {
 	h_fun := NewKeccak(768)
-	return h_fun.keccak(message, 384)
+	M01 := concat(message, "01")
+	return h_fun.keccak(M01, 384)
 }
 
 /**
@@ -37,5 +40,6 @@ func SHA3_384(message []byte) []byte {
  */
 func SHA3_512(message []byte) []byte {
 	h_fun := NewKeccak(1024)
-	return h_fun.keccak(message, 512)
+	M01 := concat(message, "01")
+	return h_fun.keccak(M01, 512)
 }

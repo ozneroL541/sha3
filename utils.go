@@ -2,6 +2,14 @@ package sha3
 
 import "strings"
 
+func concat(M []byte, suffix string) []byte {
+	m := bytesToBitString(M)
+	// Append the suffix
+	m += suffix
+	// Convert the concatenated bit string back to a byte slice
+	return bitStringToBytes(m)
+}
+
 /**
  * Helper functions for bit string and byte slice conversions
  * @param data: byte slice to convert to bit string
