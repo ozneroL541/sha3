@@ -27,17 +27,21 @@ func Rnd(A *StateArray, ir int) *StateArray {
 }
 
 /**
- * pad10*1
- * @param x: the rate in bits
- * @param m: the length of the message in bits
- * @return: the padding string
+ * 5.1 pad10*1
+ * Algorithm 9: pad10*1(x, m)
+ * @param x: positive integer
+ * @param m: non-negative integer
+ * @return: string P such that m + len(P) is a positive multiple of x.
  */
 func pad101(x uint, m uint) string {
 	if x == 0 {
 		panic("x must be greater than 0")
 	}
+	// 1. Let j = (- m - 2) mod x.
 	j := (x - ((m + 2) % x)) % x
-	return "1" + strings.Repeat("0", int(j)) + "1"
+	// 2. Return P = 1 || 0^j || 1.
+	P := "1" + strings.Repeat("0", int(j)) + "1"
+	return P
 }
 
 /**
@@ -106,7 +110,7 @@ func NewKeccak(c int) *Keccak {
 }
 
 /**
- * Implements the KECCAK hash function as per FIPS 202 Sec 4.2.
+ * 5.2 Keccak[c]
  * @param N: input pre-padded byte slice
  * @param d: desired output length in bits
  * @return: output byte slice of length d bits

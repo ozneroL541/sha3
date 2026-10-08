@@ -41,48 +41,40 @@ func (sp *Sponge) sponge(N []byte, d uint) []byte {
 	if d == 0 {
 		panic("d must be a nonnegative integer")
 	}
-
-	// Algorithm 8, Step 1: encode N as bits, append the domain-separation
-	// suffix, and apply the selected padding function.
+	// 1. Let P=N || pad(r, len(N)).
 	Nbit := bytesToBitString(N) + sp.domainSuffix
-	padded := Nbit
+	P := Nbit
 	if sp.pad != nil {
-		padded += sp.pad(sp.r, uint(len(Nbit)))
+		P += sp.pad(sp.r, uint(len(Nbit)))
 	}
-
-	// Algorithm 8, Steps 2 and 4: determine the number of r-bit input
-	// blocks and keep the padded message available for block extraction.
-	r := int(sp.r)
-	n := len(padded) / r
-
-	// Algorithm 8, Steps 3 and 5: the state has b=1600 bits, so c is the
-	// capacity and the initial state is the all-zero string 0^b.
-	b := 1600
-	c := b - r
-	S := strings.Repeat("0", b)
-
-	// Algorithm 8, Step 6 (absorbing phase): append 0^c to each r-bit
-	// message block, XOR it into the state, and apply the permutation f.
-	for i := 0; i < n; i++ {
-		Pi := padded[i*r : (i+1)*r]
-		block := Pi + strings.Repeat("0", c)
+	// 2. Let n=len(P)/r.
+	n := uint(len(P)) / sp.r
+	// 3. Let c=b-r.
+	b := uint(1600)
+	c := b - sp.r
+	S := strings.Repeat("0", int(b))
+	// 4. Let P0, … , Pn-1 be the unique sequence of strings of
+	// length r such that P = P0 || … || Pn-1.
+	for i := range n {
+		Pi := P[i*sp.r : (i+1)*sp.r]
+		block := Pi + strings.Repeat("0", int(c))
+		// 5. Let S=0^b.
+		// 6. For i from 0 to n-1, let S=f (S ⊕ (Pi || 0^c)).
 		S = xorBitStrings(S, block)
 		S = sp.f(S)
 	}
-
-	// Algorithm 8, Steps 7-10 (squeezing phase): concatenate r-bit
-	// prefixes of the state, permuting between output blocks as needed.
+	// 7. Let Z be the empty string.
 	var Z strings.Builder
+	// 8. Let Z=Z || Truncr(S).
 	for uint(Z.Len()) < d {
-		Z.WriteString(S[:r])
+		Z.WriteString(S[:sp.r])
+		// 9. If d≤|Z|, then return Trunc d (Z); else continue.
 		if uint(Z.Len()) >= d {
 			break
 		}
 		S = sp.f(S)
 	}
-
-	// Algorithm 8, Step 9: truncate the generated stream to exactly d bits
-	// before converting the result back to bytes for the Go API.
 	outBits := Z.String()[:d]
+	// 10. Let S=f(S), and continue with Step 8.
 	return bitStringToBytes(outBits)
 }
