@@ -61,7 +61,11 @@ func rho(A *StateArray) *StateArray {
 		// a. for all z such that 0≤z<w
 		for z := range w {
 			// let A′[x, y,z] = A[x, y, (z-(t+1)(t+2)/2) mod w];
-			Aprime.A[x][y][z] = A.A[x][y][(z-t_things)%w]
+			offset := (z - t_things) % w
+			if offset < 0 {
+				offset += w
+			}
+			Aprime.A[x][y][z] = A.A[x][y][offset]
 		}
 		// b. let (x, y) = (y, (2x+3y) mod 5).
 		x, y = y, (2*x+3*y)%5
@@ -132,10 +136,10 @@ func rc(t int) byte {
 	// 3. For i from 1 to t mod 255, let:
 	for i := 1; i <= t%255; i++ {
 		// a. R = 0 || R;
-		R[0] = 0
 		for k := 8; k > 0; k-- {
 			R[k] = R[k-1]
 		}
+		R[0] = 0
 		// b. R[0] = R[0] ⊕ R[8];
 		R[0] ^= R[8]
 		// c. R[4] = R[4] ⊕ R[8];
