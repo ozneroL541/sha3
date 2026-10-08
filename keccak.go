@@ -131,3 +131,20 @@ func (k *Keccak) keccak(N []byte, d uint) []byte {
 	sponge := NewSponge(keccakp.algorithm7, padding, uint(1600-k.c))
 	return sponge.sponge(N, d)
 }
+
+/**
+ * 5.2 Keccak[c]
+ * @param N: input pre-padded byte slice
+ * @param d: desired output length in bits
+ * @return: output byte slice of length d bits and the final state
+ */
+func (k *Keccak) keccakWithState(N []byte, d uint) ([]byte, *StateArray) {
+	keccakp := NewKeccakP(1600, 24)
+	laneSize := keccakp.b / 25 /** Lane size in bits = 64 */
+	padding := func(x uint, m uint) string {
+		return k.domain + pad101(x, m+uint(len(k.domain)))
+	}
+	sponge := NewSponge(keccakp.algorithm7, padding, uint(1600-k.c))
+	hash, stateStr := sponge.spongeWithState(N, d)
+	return hash, stringToStateArray(stateStr, laneSize)
+}
