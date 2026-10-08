@@ -150,6 +150,17 @@ func rc(t int) byte {
 		R[6] ^= R[8]
 		// f. R =Trunc8[R].
 	}
+	// Equivalent
+	//R := byte(1)
+	//for i := 0; i < t%255; i++ {
+	//	if R&0x80 != 0 {
+	//		R = (R << 1) ^ 0x71
+	//	} else {
+	//		R <<= 1
+	//	}
+	//}
+	//R &= 1
+
 	// 4. Return R[0].
 	return R[0]
 }
