@@ -13,7 +13,8 @@ type Sponge struct {
 }
 
 /**
- * Sponge constructor initializes a new Sponge instance with the specified parameters.
+ * Sponge constructor initializes a new Sponge instance
+ * with the specified parameters.
  * @param f: the permutation function to use
  * @param pad: the padding function to use
  * @param r: the rate in bits
@@ -30,28 +31,38 @@ func NewSponge(f PermutationFunc, pad PaddingFunc, r uint, domainSuffix string) 
 }
 
 /**
- * Implements the SPONGE[f, pad, r] construction with domain separation.
- * @param N: input pre-padded byte slice
- * @param d: desired output length in bits
- * @return: output byte slice of length d bits
+ * 4 Sponge
+ * Algorithm 8: SPONGE[f, pad, r](N, d)
+ * @param N: string
+ * @param d: nonnegative integer
+ * @return: string Z such that len(Z) = d
  */
 func (sp *Sponge) sponge(N []byte, d uint) []byte {
-	// Step 1: Convert input bytes to bit string and append domain separation bits
-	Nbit := bytesToBitString(N) + sp.domainSuffix
+	if d == 0 {
+		panic("d must be a nonnegative integer")
+	}
 
-	// Step 2 & 3: Pad input using pad101 and break into r-bit blocks
+	// Algorithm 8, Step 1: encode N as bits, append the domain-separation
+	// suffix, and apply the selected padding function.
+	Nbit := bytesToBitString(N) + sp.domainSuffix
 	padded := Nbit
 	if sp.pad != nil {
 		padded += sp.pad(sp.r, uint(len(Nbit)))
 	}
+
+	// Algorithm 8, Steps 2 and 4: determine the number of r-bit input
+	// blocks and keep the padded message available for block extraction.
 	r := int(sp.r)
 	n := len(padded) / r
 
+	// Algorithm 8, Steps 3 and 5: the state has b=1600 bits, so c is the
+	// capacity and the initial state is the all-zero string 0^b.
 	b := 1600
 	c := b - r
 	S := strings.Repeat("0", b)
 
-	// Step 6: Absorbing Phase
+	// Algorithm 8, Step 6 (absorbing phase): append 0^c to each r-bit
+	// message block, XOR it into the state, and apply the permutation f.
 	for i := 0; i < n; i++ {
 		Pi := padded[i*r : (i+1)*r]
 		block := Pi + strings.Repeat("0", c)
@@ -59,7 +70,8 @@ func (sp *Sponge) sponge(N []byte, d uint) []byte {
 		S = sp.f(S)
 	}
 
-	// Steps 7-10: Squeezing Phase
+	// Algorithm 8, Steps 7-10 (squeezing phase): concatenate r-bit
+	// prefixes of the state, permuting between output blocks as needed.
 	var Z strings.Builder
 	for uint(Z.Len()) < d {
 		Z.WriteString(S[:r])
@@ -69,7 +81,8 @@ func (sp *Sponge) sponge(N []byte, d uint) []byte {
 		S = sp.f(S)
 	}
 
-	// Truncate to d bits and convert back to bytes
+	// Algorithm 8, Step 9: truncate the generated stream to exactly d bits
+	// before converting the result back to bytes for the Go API.
 	outBits := Z.String()[:d]
 	return bitStringToBytes(outBits)
 }

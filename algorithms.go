@@ -1,7 +1,7 @@
 package sha3
 
 /**
- * Step 3.2.1: Theta (θ)
+ * 3.2.1: Theta (θ)
  * Algorithm 1: θ(A)
  * @param A: state array
  * @return: state array A'
@@ -40,7 +40,7 @@ func theta(A *StateArray) *StateArray {
 }
 
 /**
- * Step 3.2.2: Rho (ρ)
+ * 3.2.2: Rho (ρ)
  * Algorithm 2: ρ(A)
  * @param A: state array
  * @return: state array A'
@@ -75,7 +75,7 @@ func rho(A *StateArray) *StateArray {
 }
 
 /**
- * Step 3.2.3: Pi (π)
+ * 3.2.3: Pi (π)
  * Algorithm 3: π(A)
  * @param A: state array
  * @return: state array A'
@@ -97,7 +97,7 @@ func pi(A *StateArray) *StateArray {
 }
 
 /**
- * Step 3.2.4: Chi (χ)
+ * 3.2.4: Chi (χ)
  * Algorithm 4: χ(A)
  * @param A: the input StateArray
  * @return: the transformed StateArray after applying chi
@@ -121,7 +121,7 @@ func chi(A *StateArray) *StateArray {
 }
 
 /**
- * Step 3.2.5: Linear Feedback Shift Register
+ * 3.2.5: Linear Feedback Shift Register
  * Algorithm 5: rc(t)
  * @param t: integer
  * @return: bit rc(t)
@@ -166,7 +166,7 @@ func rc(t int) byte {
 }
 
 /**
- * Step 3.2.5: Algorithm 6 - Iota (ι)
+ * 3.2.5: Algorithm 6 - Iota (ι)
  * @param A: the input StateArray
  * @param ir: the round index
  * @param l: the lane size

@@ -16,7 +16,7 @@ type PermutationFunc func(string) string
 type PaddingFunc func(x uint, m uint) string
 
 /**
- * Step 3.3: Round function of a Keccak-p permutation
+ * 3.3: Round function of a Keccak-p permutation
  * @param A: StateArray
  * @param ir: round index
  * @param l: the lane size
@@ -73,7 +73,6 @@ func (k *KeccakP) algorithm7(S string) string {
 	w := k.b / 25 /** Lane size in bits */
 	// 1. Convert S to a StateArray A, as described in Section 3.1.2.
 	A := stringToStateArray(S, w)
-
 	// 2. For ir from 12+2l - nr to 12+2l -1, let A=Rnd(A, ir).
 	l := int(math.Log2(float64(w))) /** Lane size in bits */
 	start := 12 + 2*l - k.nr
@@ -81,8 +80,10 @@ func (k *KeccakP) algorithm7(S string) string {
 	for ir := start; ir <= end; ir++ {
 		A = Rnd(A, ir)
 	}
-
-	return stateArrayToString(A)
+	// 3. Convert A into a string S′ of length b, as described in Sec. 3.1.3.
+	S_prime := stateArrayToString(A)
+	// 4. Return S′.
+	return S_prime
 }
 
 /**
