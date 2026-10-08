@@ -7,9 +7,7 @@ package sha3
  * @return: SHAKE128 hash of the input J with output length d bits
  */
 func RawSHAKE128(J []byte, d uint) []byte {
-	h_fun := NewKeccak(256)
-	M11 := concat(J, "1111")
-	return h_fun.keccak(M11, d)
+	return newKeccak(256, "1111").keccak(J, d)
 }
 
 /**
@@ -19,9 +17,7 @@ func RawSHAKE128(J []byte, d uint) []byte {
  * @return: SHAKE256 hash of the input J with output length d bits
  */
 func RawSHAKE256(J []byte, d uint) []byte {
-	h_fun := NewKeccak(512)
-	M11 := concat(J, "1111")
-	return h_fun.keccak(M11, d)
+	return newKeccak(512, "1111").keccak(J, d)
 }
 
 /**
@@ -31,9 +27,7 @@ func RawSHAKE256(J []byte, d uint) []byte {
  * @return: SHAKE128 hash of the input J with output length d bits
  */
 func SHAKE128(J []byte, d uint) []byte {
-	h_fun := NewKeccak(256)
-	M11 := concat(J, "1111")
-	return h_fun.keccak(M11, d)
+	return newKeccak(256, "1111").keccak(J, d)
 }
 
 /**
@@ -43,7 +37,5 @@ func SHAKE128(J []byte, d uint) []byte {
  * @return: SHAKE256 hash of the input J with output length d bits
  */
 func SHAKE256(J []byte, d uint) []byte {
-	h_fun := NewKeccak(512)
-	M11 := concat(J, "1111")
-	return h_fun.keccak(M11, d)
+	return newKeccak(512, "1111").keccak(J, d)
 }

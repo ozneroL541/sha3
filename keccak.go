@@ -95,7 +95,8 @@ func (k *KeccakP) algorithm7(S string) string {
  * with a specified capacity.
  */
 type Keccak struct {
-	c int /** Capacity in bits */
+	c      int    /** Capacity in bits */
+	domain string /** Domain separation suffix */
 }
 
 /**
@@ -109,6 +110,13 @@ func NewKeccak(c int) *Keccak {
 	}
 }
 
+func newKeccak(c int, domain string) *Keccak {
+	return &Keccak{
+		c:      c,
+		domain: domain,
+	}
+}
+
 /**
  * 5.2 Keccak[c]
  * @param N: input pre-padded byte slice
@@ -117,6 +125,9 @@ func NewKeccak(c int) *Keccak {
  */
 func (k *Keccak) keccak(N []byte, d uint) []byte {
 	keccakp := NewKeccakP(1600, 24)
-	sponge := NewSponge(keccakp.algorithm7, pad101, uint(1600-k.c))
+	padding := func(x uint, m uint) string {
+		return k.domain + pad101(x, m+uint(len(k.domain)))
+	}
+	sponge := NewSponge(keccakp.algorithm7, padding, uint(1600-k.c))
 	return sponge.sponge(N, d)
 }
