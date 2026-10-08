@@ -42,10 +42,9 @@ func (sp *Sponge) sponge(N []byte, d uint) []byte {
 		panic("d must be a nonnegative integer")
 	}
 	// 1. Let P=N || pad(r, len(N)).
-	Nbit := bytesToBitString(N) + sp.domainSuffix
-	P := Nbit
+	P := bytesToBitString(N) + sp.domainSuffix
 	if sp.pad != nil {
-		P += sp.pad(sp.r, uint(len(Nbit)))
+		P += sp.pad(sp.r, uint(len(P)))
 	}
 	// 2. Let n=len(P)/r.
 	n := uint(len(P)) / sp.r
