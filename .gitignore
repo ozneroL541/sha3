@@ -34,3 +34,6 @@ go.work.sum
 
 KAT/
 *.zip
+
+# Build output
+bin/

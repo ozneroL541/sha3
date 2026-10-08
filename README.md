@@ -5,6 +5,22 @@
 
 Personal implementation of SHA3 algorithm.
 
+## Usage
+
+```go
+import "github.com/ozneroL541/sha3"
+
+digest := sha3.SHA3_256([]byte("hello"))
+```
+
+## Build and test
+
+```sh
+make build   # go build ./...
+make lib     # bin/sha3.a package archive
+make test    # downloads the NIST KATs if missing, then runs go test
+```
+
 ## Requirements
 When downloading the tests `curl` and `unzip` commands are required. 
 
