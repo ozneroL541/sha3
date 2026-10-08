@@ -41,24 +41,24 @@ func pad101(x uint, m uint) string {
 }
 
 /**
- * KekkaP
+ * KeccakP
  * Represents the KECCAK-p[b, nr] permutation
  * with a specified bit length and number of rounds.
  */
-type KekkaP struct {
+type KeccakP struct {
 	b  int /** Length of string S */
 	nr int /** Iterations of Rnd */
 }
 
 /**
- * Creates a new KekkaP instance with
+ * Creates a new KeccakP instance with
  * the specified bit length and number of rounds.
  * @param b: bit length of the internal state
  * @param nr: number of rounds
- * @return: a new KekkaP instance
+ * @return: a new KeccakP instance
  */
-func NewKekkaP(b int, nr int) *KekkaP {
-	return &KekkaP{
+func NewKeccakP(b int, nr int) *KeccakP {
+	return &KeccakP{
 		b:  b,
 		nr: nr,
 	}
@@ -69,7 +69,7 @@ func NewKekkaP(b int, nr int) *KekkaP {
  * @param S: the input string
  * @return: S' of length b
  */
-func (k *KekkaP) algorithm7(S string) string {
+func (k *KeccakP) algorithm7(S string) string {
 	w := k.b / 25 /** Lane size in bits */
 	// 1. Convert S to a StateArray A, as described in Section 3.1.2.
 	A := stringToStateArray(S, w)
@@ -111,7 +111,7 @@ func NewKeccak(c int) *Keccak {
  * @return: output byte slice of length d bits
  */
 func (k *Keccak) keccak(N []byte, d uint) []byte {
-	kekkap := NewKekkaP(1600, 24)
-	sponge := NewSponge(kekkap.algorithm7, pad101, uint(1600-k.c), "01")
+	keccakp := NewKeccakP(1600, 24)
+	sponge := NewSponge(keccakp.algorithm7, pad101, uint(1600-k.c), "01")
 	return sponge.sponge(N, d)
 }
